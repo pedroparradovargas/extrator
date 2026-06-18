@@ -156,6 +156,147 @@ def imprimir_imports(importaciones):
 
 
 # ---------------------------------------------------------------------------
+# FASE 0: identificación del binario (¿con qué se hizo y cómo ver su fuente?)
+# ---------------------------------------------------------------------------
+# Firmas de texto que delatan el lenguaje/empaquetador con que se creó el .exe.
+# Cada entrada: (lista de marcadores en bytes, dict con la recomendación).
+FIRMAS = [
+    ([b"AU3!EA06", b"AU3!EA05"], {
+        "tipo": "AutoIt (script compilado)",
+        "herramienta": "Exe2Aut o myAut2Exe",
+        "fuente": "alto",  # se recupera el script casi entero
+    }),
+    ([b"PyInstaller", b"pyiboot01_bootstrap", b"_MEIPASS", b"pyi-"], {
+        "tipo": "Python empaquetado con PyInstaller",
+        "herramienta": "pyinstxtractor.py y luego decompyle3 / pycdc",
+        "fuente": "alto",
+    }),
+    ([b"PYTHONSCRIPT", b"py2exe"], {
+        "tipo": "Python empaquetado con py2exe",
+        "herramienta": "unpy2exe y luego decompyle3 / pycdc",
+        "fuente": "alto",
+    }),
+    ([b"Go build ID:", b".gopclntab", b"go.buildid"], {
+        "tipo": "Go (binario nativo)",
+        "herramienta": "Ghidra + script go_parser (o IDA)",
+        "fuente": "parcial",
+    }),
+    ([b"rustc", b"cargo registry", b"/rust/"], {
+        "tipo": "Rust (binario nativo)",
+        "herramienta": "Ghidra o IDA (solo pseudocódigo)",
+        "fuente": "parcial",
+    }),
+    ([b"Borland", b"Delphi", b"Embarcadero"], {
+        "tipo": "Delphi / Pascal",
+        "herramienta": "IDR (Interactive Delphi Reconstructor)",
+        "fuente": "parcial",
+    }),
+]
+
+
+def detectar_por_firmas(datos):
+    """Busca firmas de texto en los bytes del binario.
+
+    Devuelve el dict de recomendación de la primera firma que coincida,
+    o None si ninguna coincide. Es lógica pura: fácil de probar.
+    """
+    for marcadores, info in FIRMAS:
+        if any(m in datos for m in marcadores):
+            return info
+    return None
+
+
+def _dlls_importadas(pe):
+    dlls = set()
+    try:
+        pe.parse_data_directories()
+        for entrada in getattr(pe, "DIRECTORY_ENTRY_IMPORT", []):
+            dlls.add(entrada.dll.decode(errors="replace").lower())
+    except AttributeError:
+        pass
+    return dlls
+
+
+def detectar_tipo(pe):
+    """Identifica con qué se creó el .exe y qué herramienta lleva a su fuente.
+
+    Devuelve un dict: {tipo, herramienta, fuente} donde 'fuente' indica cuánto
+    código fuente se puede recuperar: 'alto', 'parcial' o 'no'.
+    """
+    datos = bytes(getattr(pe, "__data__", b""))
+    dlls = _dlls_importadas(pe)
+    nombres_sec = {
+        s.Name.rstrip(b"\x00").decode(errors="replace").lower()
+        for s in pe.sections
+    }
+
+    # 1) .NET: el directorio COM/CLR (índice 14) o mscoree.dll lo delatan.
+    es_net = False
+    try:
+        com = pe.OPTIONAL_HEADER.DATA_DIRECTORY[14]
+        es_net = com.VirtualAddress != 0 and com.Size != 0
+    except (AttributeError, IndexError):
+        pass
+    if es_net or "mscoree.dll" in dlls:
+        return {
+            "tipo": "Programa .NET (C# / VB.NET)",
+            "herramienta": "ILSpy o dnSpy",
+            "fuente": "alto",   # recuperan código casi idéntico al original
+        }
+
+    # 2) Visual Basic 6 (runtime msvbvm60).
+    if "msvbvm60.dll" in dlls or "msvbvm50.dll" in dlls:
+        return {
+            "tipo": "Visual Basic 6",
+            "herramienta": "VB Decompiler",
+            "fuente": "parcial",
+        }
+
+    # 3) Empaquetadores (hay que desempaquetar antes de decompilar).
+    if any(n.startswith("upx") for n in nombres_sec):
+        return {
+            "tipo": "Empaquetado con UPX (comprimido)",
+            "herramienta": "Desempaqueta primero:  upx -d binario.exe",
+            "fuente": "no",
+        }
+
+    # 4) Firmas de texto (AutoIt, Python, Go, Rust, Delphi...).
+    firma = detectar_por_firmas(datos)
+    if firma is not None:
+        return firma
+
+    # 5) Python "suelto" (importa pythonXY.dll) sin marcadores claros.
+    if any(d.startswith("python") and d.endswith(".dll") for d in dlls):
+        return {
+            "tipo": "Python (intérprete embebido)",
+            "herramienta": "pyinstxtractor.py y luego decompyle3 / pycdc",
+            "fuente": "parcial",
+        }
+
+    # 6) Por defecto: C/C++ nativo. No hay fuente recuperable, solo pseudocódigo.
+    return {
+        "tipo": "C / C++ nativo (genérico)",
+        "herramienta": "Ghidra (gratis), IDA o RetDec",
+        "fuente": "no",
+    }
+
+
+_EXPLICA_FUENTE = {
+    "alto": "Se puede recuperar código fuente casi idéntico al original.",
+    "parcial": "Se recupera una aproximación; nombres y estructura pueden perderse.",
+    "no": "NO se recupera el fuente original; solo ensamblador o pseudocódigo.",
+}
+
+
+def imprimir_tipo(info):
+    lineas = _titulo("IDENTIFICACIÓN DEL BINARIO (¿cómo ver su fuente?)")
+    lineas.append(f"  Tipo detectado     : {info['tipo']}")
+    lineas.append(f"  Herramienta sugerida: {info['herramienta']}")
+    lineas.append(f"  Código fuente       : {_EXPLICA_FUENTE[info['fuente']]}")
+    return lineas
+
+
+# ---------------------------------------------------------------------------
 # FASE 2: desensamblado
 # ---------------------------------------------------------------------------
 def seccion_de(pe, rva):
@@ -335,6 +476,7 @@ def generar_informe(pe, nombre_arq, modo, max_inst=120):
 
     Devuelve (texto_informe, bloques, aristas).
     """
+    tipo = detectar_tipo(pe)
     cab = analizar_cabecera(pe, nombre_arq)
     secciones = analizar_secciones(pe)
     importaciones = analizar_imports(pe)
@@ -344,6 +486,8 @@ def generar_informe(pe, nombre_arq, modo, max_inst=120):
     aristas = calcular_aristas(bloques)
 
     lineas = []
+    lineas += imprimir_tipo(tipo)
+    lineas.append("")
     lineas += imprimir_cabecera(cab)
     lineas += imprimir_secciones(secciones)
     lineas += imprimir_imports(importaciones)

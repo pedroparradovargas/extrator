@@ -12,6 +12,7 @@ y dibuja su grafo de flujo de control (CFG).
 
 | Fase | Qué hace |
 |------|----------|
+| 0 | **Identifica con qué se hizo el .exe** y recomienda la herramienta para ver su fuente |
 | 1 | Estructura PE: cabeceras, secciones e importaciones (APIs externas) |
 | 2 | Desensamblado del código máquina a ensamblador con Capstone |
 | 3 | Detección de bloques básicos (líderes del grafo de flujo) |
@@ -62,6 +63,25 @@ pytest -q
 
 Las pruebas no necesitan un `.exe` externo ni un compilador: `tests/conftest.py`
 construye un PE de 32 bits mínimo y válido en memoria con `struct`.
+
+## ¿Quiero ver el código fuente de un .exe?
+
+El **código fuente original casi nunca se recupera tal cual** de un `.exe`: la
+compilación pierde nombres, comentarios y estructura. Lo que se obtiene depende
+del lenguaje con que se creó. La **Fase 0** detecta el tipo y te dice qué usar:
+
+| Tipo de `.exe` | ¿Se recupera el fuente? | Herramienta |
+|---|---|---|
+| **.NET (C# / VB.NET)** | Casi idéntico al original | ILSpy, dnSpy |
+| **AutoIt** | Casi entero | Exe2Aut, myAut2Exe |
+| **Python** (PyInstaller/py2exe) | El `.py` o muy parecido | pyinstxtractor + decompyle3 |
+| **Visual Basic 6** | Parcial | VB Decompiler |
+| **Go / Rust / Delphi** | Parcial (solo pseudocódigo) | Ghidra, IDA, IDR |
+| **C / C++ nativo** | No; solo **pseudocódigo** | Ghidra (gratis), IDA, RetDec |
+| **UPX (empaquetado)** | Hay que desempaquetar antes | `upx -d binario.exe` |
+
+Ejecuta `python mini_decompiler.py binario.exe` y mira la sección
+*IDENTIFICACIÓN DEL BINARIO* al principio del informe.
 
 ## Aviso de seguridad
 
