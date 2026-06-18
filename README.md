@@ -1,11 +1,32 @@
 # extrator — Laboratorio de ingeniería inversa
 
-Dos herramientas didácticas para "abrir por dentro" cosas binarias:
+Herramientas didácticas para "abrir por dentro" cosas binarias:
 
 1. **`mini_decompiler.py`** — analiza y desensambla ejecutables PE (`.exe`).
 2. **`inspector_modelos.py`** — descarga modelos de IA de HuggingFace y abre su
    estructura interna (arquitectura, capas y tensores). Ver
    [Inspector de modelos de IA](#inspector-de-modelos-de-ia).
+3. **`visor.py`** — una **vista web** que muestra la estructura de todo el código
+   del repositorio y permite **cargar un modelo** para inspeccionarlo. Ver
+   [Visor web](#visor-web).
+
+## Visor web
+
+Una sola página que reúne todo:
+
+```bash
+python visor.py                 # abre en http://localhost:8000
+python visor.py --port 9000
+```
+
+- **Panel izquierdo:** estructura de **todo el código** del repo (archivos, clases
+  y funciones), generada automáticamente con `ast`.
+- **Panel derecho:** formulario **"Cargar modelo"** — sube un `.safetensors`/`.gguf`,
+  o escribe la ruta de una carpeta local o un `repo_id` de HuggingFace, y muestra
+  su arquitectura y todos sus tensores.
+
+Solo usa la **librería estándar** de Python (no necesita Flask) y funciona offline
+para archivos/carpetas locales.
 
 ---
 
@@ -158,11 +179,13 @@ extrator/
 ├── requirements-dev.txt      # pytest
 ├── mini_decompiler.py        # analizador/desensamblador PE + CLI
 ├── inspector_modelos.py      # descarga e inspecciona modelos de IA + CLI
+├── visor.py                  # vista web del repo + cargador de modelos
 └── tests/
     ├── conftest.py           # genera un PE mínimo de prueba
     ├── test_pe.py            # PE: Fase 1
     ├── test_disasm.py        # PE: Fase 2
     ├── test_cfg.py           # PE: Fases 3 y 4
     ├── test_detect.py        # PE: Fase 0 (identificación)
-    └── test_inspector.py     # Inspector de modelos de IA
+    ├── test_inspector.py     # Inspector de modelos de IA
+    └── test_visor.py         # Visor web
 ```

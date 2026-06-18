@@ -171,6 +171,33 @@ def leer_config(directorio):
         return {}
 
 
+def _otros_vacio():
+    return {"gguf": [], "bin": [], "onnx": [], "pth": []}
+
+
+def inspeccionar(ruta):
+    """Inspecciona una fuente local: carpeta de modelo o archivo .safetensors.
+
+    Devuelve siempre un 'estado' con la misma forma que inspeccionar_directorio.
+    """
+    if os.path.isdir(ruta):
+        return inspeccionar_directorio(ruta)
+    if os.path.isfile(ruta) and ruta.lower().endswith(".safetensors"):
+        meta, tensores = leer_safetensors_header(ruta)
+        base = os.path.basename(ruta)
+        for info in tensores.values():
+            info["_archivo"] = base
+        return {
+            "config": {},
+            "safetensors": [ruta],
+            "otros": _otros_vacio(),
+            "metadata": meta,
+            "tensores": tensores,
+            "resumen": resumir_tensores(tensores),
+        }
+    raise ValueError(f"No sé cómo inspeccionar esta ruta: {ruta}")
+
+
 def inspeccionar_directorio(directorio):
     """Recorre una carpeta de modelo y agrega toda su estructura.
 
@@ -178,7 +205,7 @@ def inspeccionar_directorio(directorio):
     de todos los .safetensors, y el resumen global.
     """
     safetensors = []
-    otros = {"gguf": [], "bin": [], "onnx": [], "pth": []}
+    otros = _otros_vacio()
     for raiz, _, archivos in os.walk(directorio):
         for nombre in archivos:
             ruta = os.path.join(raiz, nombre)
