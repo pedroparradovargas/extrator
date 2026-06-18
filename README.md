@@ -1,4 +1,15 @@
-# extrator — Mini-analizador / desensamblador de ejecutables PE (.exe)
+# extrator — Laboratorio de ingeniería inversa
+
+Dos herramientas didácticas para "abrir por dentro" cosas binarias:
+
+1. **`mini_decompiler.py`** — analiza y desensambla ejecutables PE (`.exe`).
+2. **`inspector_modelos.py`** — descarga modelos de IA de HuggingFace y abre su
+   estructura interna (arquitectura, capas y tensores). Ver
+   [Inspector de modelos de IA](#inspector-de-modelos-de-ia).
+
+---
+
+## mini_decompiler — analizador / desensamblador de ejecutables PE (.exe)
 
 Laboratorio didáctico de ingeniería inversa de ejecutables PE de Windows.
 Toma un `.exe`, analiza su estructura, traduce su código máquina a ensamblador
@@ -89,17 +100,69 @@ Empieza con un `.exe` que **tú mismo compiles** (por ejemplo un "hola mundo" en
 con MinGW o MSVC) para poder verificar que la salida coincide con lo que esperas.
 **No analices binarios desconocidos fuera de una máquina virtual aislada.**
 
+---
+
+## Inspector de modelos de IA
+
+`inspector_modelos.py` **descarga** un modelo libre de HuggingFace, lo **guarda**
+en disco y **abre su estructura interna** para ver cómo es por dentro.
+
+> A un modelo no se le "descompila" (no es un ejecutable). Pero su anatomía sí es
+> legible: el formato **`.safetensors`** guarda en una cabecera JSON todos los
+> tensores (capas) con su nombre, forma y tipo de dato — se lee **sin cargar los
+> pesos en memoria**. El `config.json` describe la arquitectura.
+
+### Uso
+
+```bash
+pip install -r requirements.txt        # incluye huggingface_hub
+
+# Descargar + abrir un modelo pequeño
+python inspector_modelos.py gpt2
+
+# Solo la arquitectura, sin bajar los pesos grandes (rápido)
+python inspector_modelos.py meta-llama/Llama-3.2-1B --solo-config
+
+# Inspeccionar un modelo ya descargado
+python inspector_modelos.py ./modelos/gpt2 --solo-local
+
+# Exportar la estructura a JSON
+python inspector_modelos.py gpt2 --json estructura.json
+```
+
+Muestra: arquitectura (tipo, capas, cabezas, vocabulario…), nº de parámetros,
+tamaño de los pesos, y la lista de tensores con sus formas. Detecta también
+`.gguf` (llama.cpp), `.bin` (PyTorch) y `.onnx`.
+
+### Formatos soportados
+
+| Formato | Qué hace el inspector |
+|---|---|
+| `.safetensors` | Lee toda la estructura (tensores, formas, tipos) — formato principal |
+| `config.json` | Extrae la arquitectura del modelo |
+| `.gguf` | Lee la cabecera básica (versión, nº de tensores) |
+| `.bin` / `.onnx` | Los detecta y sugiere la herramienta para abrirlos |
+
+> **Nota de red:** descargar requiere acceso a `huggingface.co`. En un entorno con
+> la red restringida, usa `--solo-local` sobre una carpeta ya descargada, o ajusta
+> la política de red de la sesión.
+
+---
+
 ## Estructura del proyecto
 
 ```
 extrator/
 ├── README.md
-├── requirements.txt          # pefile, capstone
+├── requirements.txt          # pefile, capstone, huggingface_hub
 ├── requirements-dev.txt      # pytest
-├── mini_decompiler.py        # módulo principal + CLI
+├── mini_decompiler.py        # analizador/desensamblador PE + CLI
+├── inspector_modelos.py      # descarga e inspecciona modelos de IA + CLI
 └── tests/
     ├── conftest.py           # genera un PE mínimo de prueba
-    ├── test_pe.py            # Fase 1
-    ├── test_disasm.py        # Fase 2
-    └── test_cfg.py           # Fases 3 y 4
+    ├── test_pe.py            # PE: Fase 1
+    ├── test_disasm.py        # PE: Fase 2
+    ├── test_cfg.py           # PE: Fases 3 y 4
+    ├── test_detect.py        # PE: Fase 0 (identificación)
+    └── test_inspector.py     # Inspector de modelos de IA
 ```
