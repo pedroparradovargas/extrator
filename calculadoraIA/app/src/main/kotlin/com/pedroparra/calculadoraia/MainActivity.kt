@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.pedroparra.calculadoraia.ui.calculator.CalculatorScreen
+import com.pedroparra.calculadoraia.navigation.AppNavHost
 import com.pedroparra.calculadoraia.ui.theme.CalculadoraIaTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    CalculatorScreen()
+                    AppNavHost()
                 }
             }
         }

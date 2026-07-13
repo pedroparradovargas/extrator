@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,7 +53,10 @@ import com.pedroparra.calculadoraia.ui.common.formatUsd
 import com.pedroparra.calculadoraia.ui.theme.CalculadoraIaTheme
 
 @Composable
-fun CalculatorScreen(viewModel: CalculatorViewModel = viewModel()) {
+fun CalculatorScreen(
+    onOpenSettings: () -> Unit = {},
+    viewModel: CalculatorViewModel = viewModel(),
+) {
     val state by viewModel.ui.collectAsStateWithLifecycle()
     CalculatorContent(
         state = state,
@@ -62,6 +66,7 @@ fun CalculatorScreen(viewModel: CalculatorViewModel = viewModel()) {
         onPeopleChange = viewModel::onPeopleChange,
         onMessagesPerDayChange = viewModel::onMessagesPerDayChange,
         onRecognizedText = viewModel::setExternalText,
+        onOpenSettings = onOpenSettings,
     )
 }
 
@@ -75,9 +80,19 @@ fun CalculatorContent(
     onPeopleChange: (String) -> Unit,
     onMessagesPerDayChange: (String) -> Unit,
     onRecognizedText: (String) -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.calc_title)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.calc_title)) },
+                actions = {
+                    TextButton(onClick = onOpenSettings) {
+                        Text(stringResource(R.string.settings))
+                    }
+                },
+            )
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -303,6 +318,7 @@ private fun CalculatorPreview() {
                 onPeopleChange = {},
                 onMessagesPerDayChange = {},
                 onRecognizedText = {},
+                onOpenSettings = {},
             )
         }
     }

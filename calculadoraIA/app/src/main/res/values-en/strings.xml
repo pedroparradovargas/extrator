@@ -37,4 +37,16 @@
     <string name="tokens_total_month">Total tokens / month</string>
 
     <string name="price_note">Editable prices · updated %1$s</string>
+
+    <string name="settings">Settings</string>
+    <string name="settings_title">Model prices</string>
+    <string name="settings_subtitle">Edit prices (USD per million tokens). Saved on the device.</string>
+    <string name="back">Back</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
+    <string name="reset">Reset</string>
+    <string name="price_input">Input / 1M</string>
+    <string name="price_output">Output / 1M</string>
+    <string name="price_cached">Cached input / 1M (optional)</string>
+    <string name="price_in_out">In %1$s · Out %2$s / 1M</string>
 </resources>

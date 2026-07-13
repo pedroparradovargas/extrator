@@ -1,21 +1,38 @@
 package com.pedroparra.calculadoraia.ui.calculator
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.pedroparra.calculadoraia.core.cost.CostCalculator
 import com.pedroparra.calculadoraia.core.cost.CostInput
 import com.pedroparra.calculadoraia.core.pricing.ModelPricing
 import com.pedroparra.calculadoraia.core.tokenizer.TokenizerFactory
+import com.pedroparra.calculadoraia.data.PricingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class CalculatorViewModel : ViewModel() {
+class CalculatorViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val pricingRepository = PricingRepository(application)
 
     private val _ui = MutableStateFlow(CalculatorUiState())
     val ui: StateFlow<CalculatorUiState> = _ui.asStateFlow()
 
     init {
+        // Mantiene el catálogo (y el modelo seleccionado) en sincronía con los
+        // precios que el usuario edite en Ajustes.
+        viewModelScope.launch {
+            pricingRepository.models.collect { models ->
+                _ui.update { state ->
+                    val selected = models.firstOrNull { it.id == state.model.id } ?: models.first()
+                    state.copy(availableModels = models, model = selected)
+                }
+                recompute()
+            }
+        }
         recompute()
     }
 

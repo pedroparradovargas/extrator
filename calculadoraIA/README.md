@@ -73,7 +73,9 @@ bloque AGP/Gradle/Kotlin).
 - [x] Pantalla Calculadora (MVP): texto → tokens + coste/tráfico para N personas
 - [x] OCR (ML Kit + Photo Picker + cámara por intent)
 - [x] Voz (RecognizerIntent del sistema)
-- [ ] Historial, comparador de modelos, ajustes/precios editables, exportar
+- [x] Ajustes con **precios editables** (DataStore) + navegación
+- [ ] Comparador de coste entre modelos
+- [ ] Historial (Room) y exportar/compartir
 
 > **Nota:** `:app` no se compila en este entorno de nube (sin Android SDK y sin
 > acceso al Maven de Google). Ábrelo en **Android Studio** para sincronizar y
