@@ -5,6 +5,14 @@ import com.pedroparra.calculadoraia.core.pricing.ModelCatalog
 import com.pedroparra.calculadoraia.core.pricing.ModelPricing
 import com.pedroparra.calculadoraia.core.tokenizer.TokenCount
 
+/** Coste mensual total de un modelo para el texto/parámetros actuales (comparativa). */
+data class ModelCostSummary(
+    val model: ModelPricing,
+    val tokensIn: Int,
+    val monthlyTotal: Double,
+    val approximate: Boolean,
+)
+
 /** Estado de la pantalla de la calculadora. Las entradas numéricas se guardan como
  *  texto para permitir edición libre; se parsean al calcular. */
 data class CalculatorUiState(
@@ -16,4 +24,5 @@ data class CalculatorUiState(
     val availableModels: List<ModelPricing> = ModelCatalog.defaults,
     val tokenCount: TokenCount? = null,
     val cost: CostResult? = null,
+    val comparison: List<ModelCostSummary> = emptyList(),
 )

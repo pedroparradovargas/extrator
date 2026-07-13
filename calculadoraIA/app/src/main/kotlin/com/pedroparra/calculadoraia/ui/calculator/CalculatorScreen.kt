@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -151,6 +152,7 @@ fun CalculatorContent(
             }
 
             ResultCard(state = state)
+            ComparisonCard(state = state)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -199,6 +201,7 @@ private fun ModelSelector(
 private fun ResultCard(state: CalculatorUiState) {
     val tokenCount = state.tokenCount ?: return
     val cost = state.cost ?: return
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -254,6 +257,48 @@ private fun ResultCard(state: CalculatorUiState) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            TextButton(
+                onClick = { shareResult(context, state) },
+                modifier = Modifier.align(Alignment.End),
+            ) { Text(stringResource(R.string.share)) }
+        }
+    }
+}
+
+@Composable
+private fun ComparisonCard(state: CalculatorUiState) {
+    if (state.comparison.isEmpty()) return
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(),
+        elevation = CardDefaults.elevatedCardElevation(),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.comparison_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            state.comparison.forEachIndexed { index, summary ->
+                val cheapest = index == 0
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = summary.model.displayName + if (summary.approximate) " ≈" else "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (cheapest) FontWeight.Bold else FontWeight.Normal,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        text = formatUsd(summary.monthlyTotal),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = if (cheapest) FontWeight.Bold else FontWeight.Normal,
+                        color = if (cheapest) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
         }
     }
 }

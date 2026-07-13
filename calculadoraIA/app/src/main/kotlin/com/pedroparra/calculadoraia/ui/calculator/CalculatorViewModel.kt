@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.pedroparra.calculadoraia.core.cost.CostCalculator
 import com.pedroparra.calculadoraia.core.cost.CostInput
+import com.pedroparra.calculadoraia.core.cost.CostResult
 import com.pedroparra.calculadoraia.core.pricing.ModelPricing
 import com.pedroparra.calculadoraia.core.tokenizer.TokenizerFactory
 import com.pedroparra.calculadoraia.data.PricingRepository
@@ -53,20 +54,39 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun recompute() {
         val s = _ui.value
-        val tokenCount = TokenizerFactory.forModel(s.model).count(s.text)
-        val cost = CostCalculator.compute(
+        val outTokens = s.outputTokensInput.toIntOrNull() ?: 0
+        val people = s.peopleInput.toIntOrNull() ?: 0
+        val msgs = s.messagesPerDayInput.toDoubleOrNull() ?: 0.0
+
+        fun costFor(m: ModelPricing, tokensIn: Int): CostResult = CostCalculator.compute(
             CostInput(
-                tokensIn = tokenCount.tokens,
-                tokensOut = s.outputTokensInput.toIntOrNull() ?: 0,
-                people = s.peopleInput.toIntOrNull() ?: 0,
-                messagesPerPersonPerDay = s.messagesPerDayInput.toDoubleOrNull() ?: 0.0,
+                tokensIn = tokensIn,
+                tokensOut = outTokens,
+                people = people,
+                messagesPerPersonPerDay = msgs,
                 days = 30,
-                priceInPerMTok = s.model.inputPricePerMTok,
-                priceOutPerMTok = s.model.outputPricePerMTok,
-                cachedInputPricePerMTok = s.model.cachedInputPricePerMTok,
+                priceInPerMTok = m.inputPricePerMTok,
+                priceOutPerMTok = m.outputPricePerMTok,
+                cachedInputPricePerMTok = m.cachedInputPricePerMTok,
             ),
         )
-        _ui.update { it.copy(tokenCount = tokenCount, cost = cost) }
+
+        val tokenCount = TokenizerFactory.forModel(s.model).count(s.text)
+        val cost = costFor(s.model, tokenCount.tokens)
+
+        // Comparativa: coste mensual total de cada modelo para el mismo texto.
+        val comparison = s.availableModels.map { m ->
+            val tokensIn = if (m.id == s.model.id) tokenCount.tokens
+            else TokenizerFactory.forModel(m).count(s.text).tokens
+            ModelCostSummary(
+                model = m,
+                tokensIn = tokensIn,
+                monthlyTotal = costFor(m, tokensIn).costTotalPerPeriod,
+                approximate = m.isApproximate,
+            )
+        }.sortedBy { it.monthlyTotal }
+
+        _ui.update { it.copy(tokenCount = tokenCount, cost = cost, comparison = comparison) }
     }
 }
 

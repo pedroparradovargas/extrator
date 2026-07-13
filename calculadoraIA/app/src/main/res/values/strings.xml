@@ -37,6 +37,8 @@
     <string name="tokens_total_month">Tokens totales / mes</string>
 
     <string name="price_note">Precios editables · actualizado %1$s</string>
+    <string name="comparison_title">Comparativa de modelos (coste / mes)</string>
+    <string name="share">Compartir</string>
 
     <string name="settings">Ajustes</string>
     <string name="settings_title">Precios de los modelos</string>

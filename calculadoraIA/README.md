@@ -74,8 +74,9 @@ bloque AGP/Gradle/Kotlin).
 - [x] OCR (ML Kit + Photo Picker + cámara por intent)
 - [x] Voz (RecognizerIntent del sistema)
 - [x] Ajustes con **precios editables** (DataStore) + navegación
-- [ ] Comparador de coste entre modelos
-- [ ] Historial (Room) y exportar/compartir
+- [x] Comparador de coste entre modelos (integrado en la calculadora)
+- [x] Exportar/compartir el resultado (share sheet)
+- [ ] Historial de cálculos (Room)
 
 > **Nota:** `:app` no se compila en este entorno de nube (sin Android SDK y sin
 > acceso al Maven de Google). Ábrelo en **Android Studio** para sincronizar y
