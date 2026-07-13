@@ -68,5 +68,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.core.ktx)
 
+    // OCR on-device (modelo empaquetado → offline)
+    implementation(libs.mlkit.text.recognition)
+
     debugImplementation(libs.compose.ui.tooling)
 }

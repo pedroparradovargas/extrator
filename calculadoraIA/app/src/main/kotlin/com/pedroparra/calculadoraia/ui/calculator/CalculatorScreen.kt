@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,6 +61,7 @@ fun CalculatorScreen(viewModel: CalculatorViewModel = viewModel()) {
         onOutputTokensChange = viewModel::onOutputTokensChange,
         onPeopleChange = viewModel::onPeopleChange,
         onMessagesPerDayChange = viewModel::onMessagesPerDayChange,
+        onRecognizedText = viewModel::setExternalText,
     )
 }
 
@@ -72,6 +74,7 @@ fun CalculatorContent(
     onOutputTokensChange: (String) -> Unit,
     onPeopleChange: (String) -> Unit,
     onMessagesPerDayChange: (String) -> Unit,
+    onRecognizedText: (String) -> Unit,
 ) {
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.calc_title)) }) },
@@ -92,6 +95,11 @@ fun CalculatorContent(
                 minLines = 3,
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            // OCR (galería/cámara) y voz. Se omite en el preview del IDE.
+            if (!LocalInspectionMode.current) {
+                InputActions(onRecognizedText = onRecognizedText)
+            }
 
             ModelSelector(
                 selected = state.model,
@@ -294,6 +302,7 @@ private fun CalculatorPreview() {
                 onOutputTokensChange = {},
                 onPeopleChange = {},
                 onMessagesPerDayChange = {},
+                onRecognizedText = {},
             )
         }
     }

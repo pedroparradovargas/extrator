@@ -12,6 +12,13 @@
     <string name="clear">Clear</string>
     <string name="approx_badge">≈ approximate</string>
 
+    <string name="action_gallery">Gallery</string>
+    <string name="action_camera">Camera</string>
+    <string name="action_voice">Voice</string>
+    <string name="ocr_no_text">No text detected in the image</string>
+    <string name="ocr_error">Could not read the image</string>
+    <string name="voice_no_text">No speech recognized</string>
+
     <string name="results_title">Result</string>
     <string name="stat_tokens">Tokens</string>
     <string name="stat_chars">Characters</string>
