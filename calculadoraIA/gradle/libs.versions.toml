@@ -1,0 +1,61 @@
+# Catálogo de versiones — única fuente de verdad.
+# Stack conservador y coherente (compatible con Gradle 8.14.x):
+#   AGP 8.13.0  ↔  Gradle 8.14.x  ↔  Kotlin 2.2.20  ↔  Compose compiler 2.2.20
+# (El plan contempla como alternativa moderna AGP 9.1.1 / Gradle 9.3.1; si tu
+#  Android Studio lo soporta, sube estas 3 versiones en bloque.)
+[versions]
+agp = "8.13.0"
+kotlin = "2.2.20"
+# KSP: debe casar EXACTAMENTE con la versión de Kotlin. Si Android Studio se
+# queja, ajusta el sufijo (p. ej. 2.2.20-2.0.3).
+ksp = "2.2.20-2.0.2"
+coreKtx = "1.15.0"
+composeBom = "2026.06.00"
+activityCompose = "1.9.3"
+navigationCompose = "2.9.8"
+lifecycle = "2.9.3"
+jtokkit = "1.1.0"
+mlkitText = "16.0.1"
+camerax = "1.6.0"
+room = "2.8.4"
+datastore = "1.2.1"
+serialization = "1.11.0"
+koin = "4.0.0"
+desugar = "2.1.5"
+
+[libraries]
+# --- :core (JVM puro) ---
+jtokkit = { module = "com.knuddels:jtokkit", version.ref = "jtokkit" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+# --- :app (Android) ---
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkitText" }
+camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
+camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
+camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
