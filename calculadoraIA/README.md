@@ -69,8 +69,13 @@ bloque AGP/Gradle/Kotlin).
 
 - [x] Scaffold Gradle multi-módulo + version catalog
 - [x] `:core`: tokenización (jtokkit), precios y cálculo de coste **+ tests (verde)**
-- [ ] `:app`: scaffold Android (Compose, tema, navegación)
-- [ ] Pantallas Calculadora + Resultado (MVP)
+- [x] `:app`: scaffold Android (Compose, tema claro/oscuro, ES/EN)
+- [x] Pantalla Calculadora (MVP): texto → tokens + coste/tráfico para N personas
 - [ ] OCR (ML Kit + CameraX + Photo Picker)
 - [ ] Voz (SpeechRecognizer)
-- [ ] Extras: historial, comparador de modelos, ajustes/precios editables, exportar
+- [ ] Historial, comparador de modelos, ajustes/precios editables, exportar
+
+> **Nota:** `:app` no se compila en este entorno de nube (sin Android SDK y sin
+> acceso al Maven de Google). Ábrelo en **Android Studio** para sincronizar y
+> ejecutar; si el IDE pide ajustar la versión de AGP/Gradle, acéptalo (una línea
+> en `gradle/libs.versions.toml`).

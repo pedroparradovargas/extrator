@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">calculadoraIA</string>
+    <string name="calc_title">AI Calculator</string>
+
+    <string name="prompt_label">Text / prompt</string>
+    <string name="prompt_placeholder">Type or paste the text…</string>
+    <string name="model_label">Model</string>
+    <string name="output_tokens_label">Output tokens per message</string>
+    <string name="people_label">People (N)</string>
+    <string name="messages_per_day_label">Messages per person/day</string>
+    <string name="clear">Clear</string>
+    <string name="approx_badge">≈ approximate</string>
+
+    <string name="results_title">Result</string>
+    <string name="stat_tokens">Tokens</string>
+    <string name="stat_chars">Characters</string>
+    <string name="stat_words">Words</string>
+
+    <string name="section_message">Per message</string>
+    <string name="section_person">Per person</string>
+    <string name="section_total">Total (%1$d people)</string>
+
+    <string name="tokens_per_message">Tokens per message</string>
+    <string name="cost_per_message">Cost per message</string>
+    <string name="cost_per_person_day">Cost / day</string>
+    <string name="cost_per_person_month">Cost / month</string>
+    <string name="cost_total_day">Cost / day</string>
+    <string name="cost_total_month">Cost / month</string>
+    <string name="tokens_total_month">Total tokens / month</string>
+
+    <string name="price_note">Editable prices · updated %1$s</string>
+</resources>
