@@ -71,8 +71,8 @@ bloque AGP/Gradle/Kotlin).
 - [x] `:core`: tokenización (jtokkit), precios y cálculo de coste **+ tests (verde)**
 - [x] `:app`: scaffold Android (Compose, tema claro/oscuro, ES/EN)
 - [x] Pantalla Calculadora (MVP): texto → tokens + coste/tráfico para N personas
-- [ ] OCR (ML Kit + CameraX + Photo Picker)
-- [ ] Voz (SpeechRecognizer)
+- [x] OCR (ML Kit + Photo Picker + cámara por intent)
+- [x] Voz (RecognizerIntent del sistema)
 - [ ] Historial, comparador de modelos, ajustes/precios editables, exportar
 
 > **Nota:** `:app` no se compila en este entorno de nube (sin Android SDK y sin
